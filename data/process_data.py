@@ -40,6 +40,9 @@ def save_data(df, database_filename):
     database_filename: 
     Output:
     """
+    engine = create_engine('sqlite://'+database_filename)
+    df.to_sql('df_clean', engine, index = False)  
+
 
 
 def main():
