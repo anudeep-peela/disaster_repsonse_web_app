@@ -2,6 +2,7 @@ import sys
 from sqlalchemy import create_engine
 import pandas as pd
 import re
+import pickle
 import nltk
 from nltk.corpus import stopwords
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -16,7 +17,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.metrics import classification_report
 from sklearn.model_selection import GridSearchCV
-
+from sklearn.tree import DecisionTreeClassifier
 
 def load_data(database_filepath):
     # load data from database
@@ -30,7 +31,7 @@ def load_data(database_filepath):
 def tokenize(text):
     # normalize case and remove punctuations
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
-    #tokenize the text
+    # tokenize the text
     tokens = word_tokenize(text)
     # remove stop words and lemmatize the text
     tokens = [WordNetLemmatizer().lemmatize(word) for word in tokens if word not in stopwords.words('english')]
@@ -38,15 +39,29 @@ def tokenize(text):
 
 
 def build_model():
-    pass
+    # Build pipeline 
+    pipeline = Pipeline([('vect', CountVectorizer(tokenizer=tokenize)),
+        ('tfidf', TfidfTransformer()),
+        ('multi_clf', MultiOutputClassifier(DecisionTreeClassifier()))])
+    parameters = {'tfidf__use_idf':(True, False), 'multi_clf__estimator__max_depth': [5, 10]}
+
+    cv = GridSearchCV(pipeline, param_grid = parameters, n_jobs = -1)
+
+    return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-    pass
+
+    y_pred = model.predict(X_test)
+    for i in range(Y_test.shape[1]):
+        print(classification_report(Y_test.values[:,i], y_predict[:, i]))
 
 
 def save_model(model, model_filepath):
-    pass
+
+    pickle.dump(model, open(model_filepath, 'wb'))
+    
+
 
 
 def main():
