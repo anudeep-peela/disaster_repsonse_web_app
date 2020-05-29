@@ -1,9 +1,30 @@
 import sys
+from sqlalchemy import create_engine
+import pandas as pd
+import re
+import nltk
+from nltk.corpus import stopwords
+from nltk.stem.wordnet import WordNetLemmatizer
+from nltk.tokenize import word_tokenize
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+from sklearn.pipeline import Pipeline , FeatureUnion
+from sklearn.multioutput import MultiOutputClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.metrics import classification_report
+from sklearn.model_selection import GridSearchCV
 
 
 def load_data(database_filepath):
-    pass
-
+    engine = create_engine('sqlite://df_clean.db')
+    df = pd.read_sql_table('df_clean', engine)
+    X = df['message']
+    Y = df.iloc[:, 4:]
+    category_names = df.columns.to_list()[4:]
+    return X, Y, category_names
 
 def tokenize(text):
     pass
