@@ -19,6 +19,7 @@ from sklearn.model_selection import GridSearchCV
 
 
 def load_data(database_filepath):
+    # load data from database
     engine = create_engine('sqlite://df_clean.db')
     df = pd.read_sql_table('df_clean', engine)
     X = df['message']
@@ -27,7 +28,13 @@ def load_data(database_filepath):
     return X, Y, category_names
 
 def tokenize(text):
-    pass
+    # normalize case and remove punctuations
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
+    #tokenize the text
+    tokens = word_tokenize(text)
+    # remove stop words and lemmatize the text
+    tokens = [WordNetLemmatizer().lemmatize(word) for word in tokens if word not in stopwords.words('english')]
+    return tokens
 
 
 def build_model():
