@@ -12,25 +12,39 @@ def load_data(messages_filepath, categories_filepath):
     OUTPUT:
     df - (pandas df) merged dataframe from messages and categories
     '''
+    # load messages dataset
     messages = pd.read_csv(messages_filepath)
+    # load categories dataset
     categories = pd.read_csv(categories_filepath)
+    # merge datasets
     df = messages.merge(categories, on = 'id')
 
     return df
 
 
 def clean_data(df):
-    """
-
-    """
+    '''
+    Creates categories columns and drops duplicates
+    INPUT:
+    df - (pandas df) dataframe containg messages and categories
+    OUTPUT:
+    pandas df
+    '''
+    # convert categories column into a dataframe
     categories = df['categories'].str.split(';', expand = True)
+    # set first row 
     row = categories.iloc[0,:]
+    # use only the word part of the string
     categoty_colnames = row.apply(lambda x: x[:-2])
     categories.columns = categoty_colnames
+    # use only the numeric part of the string
     for column in categories:
         categories[column] = categories[column].apply(lambda x: int(x[-1]))
+    # drop the unclean category column
     df.drop('categories', axis = 1, inplace = True)
+    # concat with new categories df
     df = pd.concat([df, categories], axis = 1)
+    # drop duplicates
     df.drop_duplicates(inplace = True)
 
     return df
@@ -39,8 +53,8 @@ def save_data(df, database_filename):
     """
     Save the dataframe to desired database_filename
     Input:
-    df : DataFrame
-    database_filename: 
+    df : (pandas df) clean dataframe with messages and categories
+    database_filename: (string) database filename
     Output:
     """
     engine = create_engine('sqlite://'+database_filename)
