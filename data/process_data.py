@@ -4,11 +4,14 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
-    """
+    '''
     Extract the data from csv files 
-    Input:
-    Output:
-    """
+    INPUT:
+    messages_filepath - (string) filepath of csv file containing messages 
+    categories_failpath - (string) filepath of csv file containing response category
+    OUTPUT:
+    df - (pandas df) merged dataframe from messages and categories
+    '''
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = messages.merge(categories, on = 'id')
