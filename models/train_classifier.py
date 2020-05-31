@@ -43,7 +43,7 @@ def build_model():
     pipeline = Pipeline([('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('multi_clf', MultiOutputClassifier(DecisionTreeClassifier()))])
-    parameters = {'tfidf__use_idf':(True, False), 'multi_clf__estimator__max_depth': [5, 10]}
+    parameters = {'multi_clf__estimator__max_depth': [5, 10]}
 
     cv = GridSearchCV(pipeline, param_grid = parameters, n_jobs = -1)
 
@@ -51,14 +51,14 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
-
+    # print classfication report for each column in Y
     y_pred = model.predict(X_test)
     for i in range(Y_test.shape[1]):
         print(classification_report(Y_test.values[:,i], y_predict[:, i]))
 
 
 def save_model(model, model_filepath):
-
+    # save the model
     pickle.dump(model, open(model_filepath, 'wb'))
     
 
