@@ -21,7 +21,7 @@ from sklearn.tree import DecisionTreeClassifier
 
 def load_data(database_filepath):
     # load data from database
-    engine = create_engine('sqlite://df_clean.db')
+    engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table('df_clean', engine)
     X = df['message']
     Y = df.iloc[:, 4:]
