@@ -20,6 +20,15 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 
 def load_data(database_filepath):
+    '''
+    Loads data from database
+    Input:
+    database_filepath: (string) filepath to database
+    Output:
+    X : (pandas Series) messages series
+    Y : (pandas DataFrame) target dataframe
+    category_names : (list) labels of target varibales
+    '''
     # load data from database
     engine = create_engine('sqlite:///'+database_filepath)
     df = pd.read_sql_table('df_clean', engine)
@@ -29,6 +38,15 @@ def load_data(database_filepath):
     return X, Y, category_names
 
 def tokenize(text):
+    '''
+    Tokenizes the text data by 
+    - lowering, removing punctuation
+    - removing stopwords
+    - lemmatizing
+    Input: (strings) text data
+    Output: (list) tokonized text
+
+    '''
     # normalize case and remove punctuations
     text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
     # tokenize the text
@@ -39,18 +57,31 @@ def tokenize(text):
 
 
 def build_model():
+    '''
+    Build a pipeline along with GridSearch
+    Input: None
+    Output: Trainable Model
+    '''
     # Build pipeline 
     pipeline = Pipeline([('vect', CountVectorizer(tokenizer=tokenize)),
         ('tfidf', TfidfTransformer()),
         ('multi_clf', MultiOutputClassifier(DecisionTreeClassifier()))])
+    # set parameters for GridSearch
     parameters = {'multi_clf__estimator__max_depth': [5, 10]}
-
+    # Set GridSearchCV model using pipline and parameters
     cv = GridSearchCV(pipeline, param_grid = parameters, n_jobs = -1)
 
     return cv
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    '''
+    Displays model's performance on test set
+    Input:
+    model: Trained model
+    X_test, Y_test : test data set
+    category_names : labels of target variables
+    '''
     # print classfication report for each column in Y
     y_pred = model.predict(X_test)
     for i in range(Y_test.shape[1]):
@@ -58,6 +89,12 @@ def evaluate_model(model, X_test, Y_test, category_names):
 
 
 def save_model(model, model_filepath):
+    '''
+    Save the model as pickle 
+    Input: 
+    model: trained model
+    model_filepath: path to save model
+    '''
     # save the model
     pickle.dump(model, open(model_filepath, 'wb'))
     
